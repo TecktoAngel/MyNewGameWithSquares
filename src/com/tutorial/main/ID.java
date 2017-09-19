@@ -3,6 +3,8 @@ package com.tutorial.main;
 public enum ID {
 	
 	Player(),
-	BasicEnemy();
+	BasicEnemy(),
+	FastEnemy,
+	Trail();
 
 }
