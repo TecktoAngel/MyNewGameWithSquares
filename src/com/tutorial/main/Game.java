@@ -88,7 +88,7 @@ public class Game extends Canvas implements Runnable {
 		Graphics graphics = bs.getDrawGraphics();
 
 		graphics.setColor(Color.black);
-		graphics.fillRect(0, 0, WIDTH, HEIGHT);
+		graphics.fillRect((int)0, (int)0, WIDTH, HEIGHT);
 	
 		handler.render(graphics);
 
@@ -115,7 +115,7 @@ public class Game extends Canvas implements Runnable {
 		}
 	}
 
-	public static int clamp(int var, int min, int max) {
+	public static float clamp(float var, float min, float max) {
 		if(var >= max) {
 			return var = max;
 		} else if (var <= min) {
