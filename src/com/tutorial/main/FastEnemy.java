@@ -33,13 +33,13 @@ public class FastEnemy extends GameObject{
 
 	}
 
-	public void render(Graphics g) {
-		g.setColor(Color.ORANGE);
-		g.fillRect((int)x, (int)y, 16, 16);
+	public void render(Graphics graphics) {
+		graphics.setColor(Color.ORANGE);
+		graphics.fillRect((int)x, (int)y, 16, 16);
 	}
 
 	public Rectangle getBounds() {
-		return new Rectangle((int)x , (int)y, 16, 16);
+		return new Rectangle((int)x, (int)y, 16, 16);
 	}
 	
 	

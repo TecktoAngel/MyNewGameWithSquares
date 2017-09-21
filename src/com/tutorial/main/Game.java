@@ -49,6 +49,10 @@ public class Game extends Canvas implements Runnable {
 			// handler.addObject(new FirstBoss((Game.WIDTH / 2) - 32, -84,
 			// ID.FirstBoss, handler));
 			handler.addObject(new BasicEnemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.BasicEnemy, handler));
+		} else {
+			for (int i = 0; i < 10; i++) {
+				handler.addObject(new MenuParticle(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.MenuParticle, handler));
+			}
 		}
 	}
 
