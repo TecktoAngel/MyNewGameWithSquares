@@ -19,8 +19,14 @@ public class MenuParticle extends GameObject{
 		
 		this.handler = handler;
 		
-		speedX = (random.nextInt(5 - -5) + -5);
-		speedY = (random.nextInt(5 - -5) + -5);
+		speedX = (random.nextInt(6 - -6) + -6);
+		speedY = (random.nextInt(6 - -6) + -6);
+		if (speedX == 0) {
+			speedX = 1;
+		}
+		if (speedY == 0) {
+			speedY = 1;
+		}
 		
 		color = new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255));
 	}
