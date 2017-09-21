@@ -18,24 +18,38 @@ public class Game extends Canvas implements Runnable {
 
 	private Random random;
 	private Handler handler;
-	
+
 	private HUD hud;
 	private Spawn spawner;
 
+	private Menu menu;
+
+	public enum STATE {
+		Menu, Game, Help
+	};
+
+	public STATE gameState = STATE.Menu;
+
 	public Game() {
 		handler = new Handler();
+		menu = new Menu(this, handler);
 
 		this.addKeyListener(new KeyInput(handler));
+		this.addMouseListener(menu);
 
-		new Window(WIDTH, HEIGHT, "Da Game", this);
-		
+		new Window(WIDTH, HEIGHT, "Square Warriors", this);
+
 		hud = new HUD();
 		spawner = new Spawn(handler, hud);
 		random = new Random();
 
-		handler.addObject(new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler));
-		handler.addObject(new BasicEnemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.BasicEnemy, handler));
-
+		if (gameState == STATE.Game) {
+			handler.addObject(new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler));
+			// Boss test spawn
+			// handler.addObject(new FirstBoss((Game.WIDTH / 2) - 32, -84,
+			// ID.FirstBoss, handler));
+			handler.addObject(new BasicEnemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.BasicEnemy, handler));
+		}
 	}
 
 	// running loop
@@ -72,9 +86,12 @@ public class Game extends Canvas implements Runnable {
 
 	private void tick() {
 		handler.tick();
-		hud.tick();
-		spawner.tick();
-
+		if (gameState == STATE.Game) {
+			hud.tick();
+			spawner.tick();
+		} else if (gameState == STATE.Menu) {
+			menu.tick();
+		}
 	}
 
 	// render main window
@@ -88,12 +105,16 @@ public class Game extends Canvas implements Runnable {
 		Graphics graphics = bs.getDrawGraphics();
 
 		graphics.setColor(Color.black);
-		graphics.fillRect((int)0, (int)0, WIDTH, HEIGHT);
-	
+		graphics.fillRect((int) 0, (int) 0, WIDTH, HEIGHT);
+
 		handler.render(graphics);
 
-		hud.render(graphics);
-		
+		if (gameState == STATE.Game) {
+			hud.render(graphics);
+		} else if (gameState == STATE.Menu || gameState == STATE.Help) {
+			menu.render(graphics);
+		}
+
 		graphics.dispose();
 		bs.show();
 	}
@@ -116,7 +137,7 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public static float clamp(float var, float min, float max) {
-		if(var >= max) {
+		if (var >= max) {
 			return var = max;
 		} else if (var <= min) {
 			return var = min;

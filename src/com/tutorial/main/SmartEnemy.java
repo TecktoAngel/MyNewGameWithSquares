@@ -24,7 +24,7 @@ public class SmartEnemy extends GameObject{
 		x += speedX;
 		y += speedY;
 		
-		//enemy forwards you
+		//enemy AI forwards you
 		if (player.getY() > y) { 
 			speedY = 2;
 		}
