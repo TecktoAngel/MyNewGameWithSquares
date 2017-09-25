@@ -4,6 +4,7 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Game extends Canvas implements Runnable {
@@ -16,6 +17,11 @@ public class Game extends Canvas implements Runnable {
 	private Thread thread;
 	private boolean isRunning = false;
 
+	public static boolean paused = false;
+	public int diff = 0;
+	//0 - Normal
+	//1 - Hard
+
 	private Random random;
 	private Handler handler;
 
@@ -25,22 +31,30 @@ public class Game extends Canvas implements Runnable {
 	private Menu menu;
 
 	public enum STATE {
-		Menu, Game, Help
+		Menu, Game, Help, End, Select
 	};
 
-	public STATE gameState = STATE.Menu;
+	public static STATE gameState = STATE.Menu;
+	
+	public static BufferedImage sprite_sheet;
 
 	public Game() {
 		handler = new Handler();
-		menu = new Menu(this, handler);
+		hud = new HUD();
+		menu = new Menu(this, handler, hud);
 
-		this.addKeyListener(new KeyInput(handler));
+		this.addKeyListener(new KeyInput(handler, this));
 		this.addMouseListener(menu);
 
-		new Window(WIDTH, HEIGHT, "Square Warriors", this);
+		AudioPlayer.loadMusic();
+		AudioPlayer.getMusic("music").loop();
 
-		hud = new HUD();
-		spawner = new Spawn(handler, hud);
+		new Window(WIDTH, HEIGHT, "Square Warriors", this);
+		
+		BufferedImageLoad loader = new BufferedImageLoad();
+		sprite_sheet = loader.loadImage("/Sprite_sheet.png");
+		
+		spawner = new Spawn(handler, hud, this);
 		random = new Random();
 
 		if (gameState == STATE.Game) {
@@ -48,10 +62,11 @@ public class Game extends Canvas implements Runnable {
 			// Boss test spawn
 			// handler.addObject(new FirstBoss((Game.WIDTH / 2) - 32, -84,
 			// ID.FirstBoss, handler));
-			handler.addObject(new BasicEnemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.BasicEnemy, handler));
+			handler.addObject(new EnemyBasic(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.BasicEnemy, handler));
 		} else {
 			for (int i = 0; i < 10; i++) {
-				handler.addObject(new MenuParticle(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.MenuParticle, handler));
+				handler.addObject(
+						new MenuParticle(random.nextInt(WIDTH), random.nextInt(HEIGHT), ID.MenuParticle, handler));
 			}
 		}
 	}
@@ -89,12 +104,26 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void tick() {
-		handler.tick();
 		if (gameState == STATE.Game) {
-			hud.tick();
-			spawner.tick();
-		} else if (gameState == STATE.Menu) {
+			if (!paused) {
+				handler.tick();
+				hud.tick();
+				spawner.tick();
+
+				if (HUD.HEALTH <= 0) {
+					HUD.HEALTH = 100;
+					gameState = STATE.End;
+					handler.clearEnemies();
+					for (int i = 0; i < 10; i++) {
+						handler.addObject(new MenuParticle(random.nextInt(WIDTH), random.nextInt(HEIGHT),
+								ID.MenuParticle, handler));
+					}
+				}
+			}
+
+		} else if (gameState == STATE.Menu || gameState == STATE.End || gameState == STATE.Select) {
 			menu.tick();
+			handler.tick();
 		}
 	}
 
@@ -113,9 +142,14 @@ public class Game extends Canvas implements Runnable {
 
 		handler.render(graphics);
 
+		if (paused) {
+			graphics.setColor(Color.WHITE);
+			graphics.drawString("PAUSED", WIDTH / 2 - 32, HEIGHT / 2 - 32);
+		}
+
 		if (gameState == STATE.Game) {
 			hud.render(graphics);
-		} else if (gameState == STATE.Menu || gameState == STATE.Help) {
+		} else if (gameState == STATE.Menu || gameState == STATE.Help || gameState == STATE.End || gameState == STATE.Select) {
 			menu.render(graphics);
 		}
 
