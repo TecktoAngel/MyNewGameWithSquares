@@ -19,41 +19,42 @@ public class Game extends Canvas implements Runnable {
 
 	public static boolean paused = false;
 	public int diff = 0;
-	//0 - Normal
-	//1 - Hard
+	// 0 - Normal
+	// 1 - Hard
 
 	private Random random;
 	private Handler handler;
-
 	private HUD hud;
 	private Spawn spawner;
-
 	private Menu menu;
+	private Shop shop;
 
 	public enum STATE {
-		Menu, Game, Help, End, Select
+		Menu, Game, Help, End, Select, Shop
 	};
 
 	public static STATE gameState = STATE.Menu;
-	
+
 	public static BufferedImage sprite_sheet;
 
 	public Game() {
 		handler = new Handler();
 		hud = new HUD();
+		shop = new Shop(handler, hud);
 		menu = new Menu(this, handler, hud);
 
 		this.addKeyListener(new KeyInput(handler, this));
 		this.addMouseListener(menu);
+		this.addMouseListener(shop);
 
 		AudioPlayer.loadMusic();
 		AudioPlayer.getMusic("music").loop();
 
 		new Window(WIDTH, HEIGHT, "Square Warriors", this);
-		
+
 		BufferedImageLoad loader = new BufferedImageLoad();
 		sprite_sheet = loader.loadImage("/Sprite_sheet.png");
-		
+
 		spawner = new Spawn(handler, hud, this);
 		random = new Random();
 
@@ -140,8 +141,6 @@ public class Game extends Canvas implements Runnable {
 		graphics.setColor(Color.black);
 		graphics.fillRect((int) 0, (int) 0, WIDTH, HEIGHT);
 
-		handler.render(graphics);
-
 		if (paused) {
 			graphics.setColor(Color.WHITE);
 			graphics.drawString("PAUSED", WIDTH / 2 - 32, HEIGHT / 2 - 32);
@@ -149,8 +148,12 @@ public class Game extends Canvas implements Runnable {
 
 		if (gameState == STATE.Game) {
 			hud.render(graphics);
-		} else if (gameState == STATE.Menu || gameState == STATE.Help || gameState == STATE.End || gameState == STATE.Select) {
+			handler.render(graphics);
+		} else if (gameState == STATE.Shop) {
+			shop.render(graphics);
+		} else if (gameState == STATE.Menu || gameState == STATE.Help || gameState == STATE.End	|| gameState == STATE.Select) {
 			menu.render(graphics);
+			handler.render(graphics);
 		}
 
 		graphics.dispose();

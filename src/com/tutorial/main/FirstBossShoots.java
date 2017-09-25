@@ -49,7 +49,4 @@ public class FirstBossShoots extends GameObject{
 	public Rectangle getBounds() {
 		return new Rectangle((int)x , (int)y, 16, 16);
 	}
-	
-	
-
 }
